@@ -143,7 +143,9 @@ export const useAuthStore = create<AuthState>()(
             password,
           });
           if (error) throw error;
-          console.log('Sign-up successful:', data);
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Sign-up successful:', data);
+          }
 
         } catch (error) {
           console.error('Error signing up:', error);
