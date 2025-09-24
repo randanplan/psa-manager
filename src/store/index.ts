@@ -209,7 +209,9 @@ export const useReportStore = create<ReportState>()(
 
             if (error) throw error;
 
-            console.log('Fetch reports response:', { data, error, status, statusText, count });
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Fetch reports response:', { data, error, status, statusText, count });
+            }
 
             const reports: PsaReport[] = (data || []).map((row: any) => ({
               id: row.id,
