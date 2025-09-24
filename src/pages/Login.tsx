@@ -10,10 +10,11 @@ import {
   Stack,
   Group,
   Alert,
+  Divider,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { useAuthStore } from '../store';
+import { useAuthStore, useReportStore } from '../store';
 
 interface LoginFormValues {
   email: string;
@@ -23,7 +24,8 @@ interface LoginFormValues {
 export function Login() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuthStore();
+  const { signIn, signUp, signInDemo } = useAuthStore();
+  const { loadSampleData } = useReportStore();
 
   const form = useForm<LoginFormValues>({
     initialValues: {
@@ -65,6 +67,16 @@ export function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDemoLogin = () => {
+    signInDemo();
+    loadSampleData();
+    notifications.show({
+      title: 'Demo-Modus aktiviert',
+      message: 'Sie verwenden PSA-Manager mit Beispieldaten.',
+      color: 'blue',
+    });
   };
 
   return (
@@ -133,6 +145,21 @@ export function Login() {
             {isRegistering ? 'Anmelden' : 'Registrieren'}
           </Button>
         </Group>
+
+        <Divider label="oder" labelPosition="center" my="lg" />
+
+        <Button
+          variant="light"
+          fullWidth
+          onClick={handleDemoLogin}
+          color="green"
+        >
+          Demo mit Beispieldaten testen
+        </Button>
+
+        <Text size="xs" c="dimmed" ta="center" mt="md">
+          Im Demo-Modus werden keine echten Daten gespeichert
+        </Text>
       </Paper>
     </Container>
   );
