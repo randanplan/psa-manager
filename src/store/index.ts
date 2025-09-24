@@ -370,7 +370,9 @@ export const useReportStore = create<ReportState>()(
               .delete()
               .eq('id', id);
 
-            console.log('Delete report response:', { data, error, count, status, statusText });
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Delete report response:', { data, error, count, status, statusText });
+            }
 
             if (error) throw error;
 
