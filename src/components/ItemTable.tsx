@@ -109,8 +109,7 @@ export function ItemTable({ items, onChange, editable = false }: ItemTableProps)
     if (editingItem) {
       // Update existing item
       const itemIndex = items.findIndex(item => 
-        item.itemSN === editingItem.itemSN && 
-        item.itemDescription === editingItem.itemDescription
+        item.itemSN === editingItem.itemSN
       );
       if (itemIndex !== -1) {
         const updatedItems = [...items];
