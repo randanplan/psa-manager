@@ -267,7 +267,9 @@ export const useReportStore = create<ReportState>()(
               .single();
 
             if (error) throw error;
-            console.log('Create report response:', { data, error, status, statusText, count });
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Create report response:', { data, error, status, statusText, count });
+            }
             const newReport: PsaReport = {
               id: data.id,
               anwender: data.anwender,
