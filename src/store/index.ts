@@ -333,7 +333,9 @@ export const useReportStore = create<ReportState>()(
               .select()
               .single();
 
-            console.log('Update report response:', { data, error, status, count, statusText });
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Update report response:', { data, error, status, count, statusText });
+            }
 
             if (error) throw error;
 
