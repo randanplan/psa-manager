@@ -108,7 +108,10 @@ export function ViewReport() {
         color: 'green',
       });
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error(
+        `Error generating PDF for report ID: ${report?.id || 'unknown'}, Anwender: ${report?.anwender || 'unknown'}`,
+        error
+      );
       notifications.show({
         title: 'Fehler',
         message: 'PDF konnte nicht erstellt werden',
