@@ -8,10 +8,13 @@ Diese Dokumentation beschreibt die Installation, Projektstruktur, Datenmodelle, 
 
 ## Inhaltsverzeichnis
 
-- [Installation und Setup](setup.md)
+- [Lokales Setup](setup-local.md)
+- [Cloud-Setup](setup-cloud.md)
+- [Anleitung für Coding-Agents](AGENTS.md)
 - [Projektstruktur](structure.md)
 - [Datenmodelle](data-models.md)
 - [Kernfunktionen](features.md)
+- [Testing und Linting](testing-and-linting.md)
 - [Erweiterungen und Zukunft](roadmap.md)
 - [Fehlerbehebung](troubleshooting.md)
 
@@ -19,7 +22,7 @@ Diese Dokumentation beschreibt die Installation, Projektstruktur, Datenmodelle, 
 
 1. **Repo klonen**: `git clone https://github.com/randanplan/psa-manager.git`
 2. **Abhängigkeiten installieren**: `npm install`
-3. **Umgebungsvariablen**: Kopiere `.env.example` zu `.env.local` und füge Supabase-Schlüssel hinzu (siehe [setup.md](setup.md)).
+3. **Umgebungsvariablen**: Kopiere `.env.example` zu `.env.local` und füge Supabase-Schlüssel hinzu (siehe [setup-local.md](setup-local.md) für lokale Entwicklung oder [setup-cloud.md](setup-cloud.md) für Cloud-Deployment).
 4. **Entwicklungsserver starten**: `npm run dev`
 5. **Zugriff**: Öffne `http://localhost:5173` im Browser.
 

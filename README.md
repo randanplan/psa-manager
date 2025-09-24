@@ -28,36 +28,41 @@ Ein modernes Web-Tool für das Management und die Digitalisierung von PSA (Pers�
 ## 📋 Voraussetzungen
 
 - Node.js (>= 18.0.0)
-- npm oder yarn
+- pnpm
 - Supabase Account
 
 ## 🔧 Installation
 
 1. **Repository klonen**
+
    ```bash
    git clone https://github.com/randanplan/psa-manager.git
    cd psa-manager
    ```
 
 2. **Dependencies installieren**
+
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. **Umgebungsvariablen konfigurieren**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Bearbeiten Sie die `.env` Datei und fügen Sie Ihre Supabase-Konfiguration hinzu:
+
    ```env
    VITE_SUPABASE_URL=https://your-project-id.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key-here
    ```
 
 4. **Supabase Datenbank einrichten**
-   
+
    Erstellen Sie in Ihrem Supabase-Projekt eine Tabelle `psa_reports`:
+
    ```sql
    CREATE TABLE psa_reports (
      id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -71,29 +76,30 @@ Ein modernes Web-Tool für das Management und die Digitalisierung von PSA (Pers�
      created_by UUID REFERENCES auth.users(id),
      updated_by UUID REFERENCES auth.users(id)
    );
-   
+
    -- Row Level Security aktivieren
    ALTER TABLE psa_reports ENABLE ROW LEVEL SECURITY;
-   
+
    -- Policy für authentifizierte Benutzer
    CREATE POLICY "Users can view their own reports" ON psa_reports
      FOR SELECT USING (auth.uid() = created_by);
-   
+
    CREATE POLICY "Users can insert their own reports" ON psa_reports
      FOR INSERT WITH CHECK (auth.uid() = created_by);
-   
+
    CREATE POLICY "Users can update their own reports" ON psa_reports
      FOR UPDATE USING (auth.uid() = created_by);
-   
+
    CREATE POLICY "Users can delete their own reports" ON psa_reports
      FOR DELETE USING (auth.uid() = created_by);
    ```
 
 5. **Entwicklungsserver starten**
+
    ```bash
-   npm run dev
+   pnpm run dev
    ```
-   
+
    Die Anwendung ist unter `http://localhost:5173` verfügbar.
 
 ## 📖 Verwendung
@@ -108,28 +114,30 @@ Ein modernes Web-Tool für das Management und die Digitalisierung von PSA (Pers�
 ### Datenmodelle
 
 #### PsaReportItem
+
 ```typescript
 interface PsaReportItem {
   index?: number;
-  itemDescription: string;      // Beschreibung des PSA-Items
-  enNorm: string;              // EN-Norm (z.B. EN 397)
-  itemSN: string;              // Seriennummer
-  baujahr: number;             // Herstellungsjahr
-  zustand: string;             // Aktueller Zustand
+  itemDescription: string; // Beschreibung des PSA-Items
+  enNorm: string; // EN-Norm (z.B. EN 397)
+  itemSN: string; // Seriennummer
+  baujahr: number; // Herstellungsjahr
+  zustand: string; // Aktueller Zustand
   ergebnis: "GUT" | "BEOBACHTEN" | "REPARIEREN" | "AUSSONDERN";
   naechstePruefung: string | Date; // Datum der nächsten Prüfung
 }
 ```
 
 #### PsaReport
+
 ```typescript
 interface PsaReport {
   id: string;
-  anwender: string;            // Name des PSA-Anwenders
-  prueferName?: string;        // Name des Prüfers
-  ort?: string;                // Prüfungsort
-  datum: string | Date;        // Prüfungsdatum
-  items: PsaReportItem[];      // Array der PSA-Items
+  anwender: string; // Name des PSA-Anwenders
+  prueferName?: string; // Name des Prüfers
+  ort?: string; // Prüfungsort
+  datum: string | Date; // Prüfungsdatum
+  items: PsaReportItem[]; // Array der PSA-Items
   createdAt?: string | Date;
   updatedAt?: string | Date;
   createdBy?: string;
@@ -152,21 +160,21 @@ interface PsaReport {
 
 ```bash
 # Entwicklungsserver starten
-npm run dev
+pnpm run dev
 
 # Build für Produktion
-npm run build
+pnpm run build
 
 # Lint Code
-npm run lint
+pnpm run lint
 
 # Preview der Produktion
-npm run preview
+pnpm run preview
 ```
 
 ### Projekt-Struktur
 
-```
+```plain
 src/
 ├── components/          # Wiederverwendbare UI-Komponenten
 │   ├── ReportForm.tsx   # Formular für Berichte
@@ -196,6 +204,7 @@ src/
 ## 📝 Standards
 
 Die Anwendung folgt den BGR 198/199 Standards für PSA-Prüfungen und unterstützt:
+
 - Strukturierte Erfassung aller prüfungsrelevanten Daten
 - Nachverfolgbare Dokumentation
 - Export-Funktionen für offizielle Berichte

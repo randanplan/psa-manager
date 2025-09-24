@@ -15,7 +15,7 @@ import {
   Paper,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { useForm } from '@mantine/form';
+import { useForm, Form } from '@mantine/form';
 import { IconPlus, IconEdit, IconTrash, IconQrcode } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { QRCodeSVG } from 'qrcode.react';
@@ -108,7 +108,7 @@ export function ItemTable({ items, onChange, editable = false }: ItemTableProps)
 
     if (editingItem) {
       // Update existing item
-      const itemIndex = items.findIndex(item => 
+      const itemIndex = items.findIndex(item =>
         item.itemSN === editingItem.itemSN
       );
       if (itemIndex !== -1) {
@@ -166,114 +166,116 @@ export function ItemTable({ items, onChange, editable = false }: ItemTableProps)
   };
 
   return (
-    <Stack gap="md">
-      {editable && (
-        <Group justify="flex-end">
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={openAddModal}
-          >
-            Item hinzufügen
-          </Button>
-        </Group>
-      )}
-
-      {items.length === 0 ? (
-        <Paper p="xl" ta="center">
-          <Text size="lg" c="dimmed">
-            Noch keine PSA-Items vorhanden
-          </Text>
-          {editable && (
+    <>
+      <Stack gap="md">
+        {editable && (
+          <Group justify="flex-end">
             <Button
               leftSection={<IconPlus size={16} />}
-              mt="md"
               onClick={openAddModal}
             >
-              Erstes Item hinzufügen
+              Item hinzufügen
             </Button>
-          )}
-        </Paper>
-      ) : (
-        <Table.ScrollContainer minWidth={800}>
-          <Table striped highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Beschreibung</Table.Th>
-                <Table.Th>EN-Norm</Table.Th>
-                <Table.Th>Seriennummer</Table.Th>
-                <Table.Th>Baujahr</Table.Th>
-                <Table.Th>Zustand</Table.Th>
-                <Table.Th>Ergebnis</Table.Th>
-                <Table.Th>Nächste Prüfung</Table.Th>
-                <Table.Th>Aktionen</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {items.map((item, index) => (
-                <Table.Tr key={`${item.itemSN}-${index}`}>
-                  <Table.Td>
-                    <Text size="sm" fw={500}>{item.itemDescription}</Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="sm">{item.enNorm}</Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="sm" fw={500}>{item.itemSN}</Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="sm">{item.baujahr}</Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="sm">{item.zustand}</Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge color={getErgebnisColor(item.ergebnis)} size="sm">
-                      {item.ergebnis}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="sm">
-                      {dayjs(item.naechstePruefung).format('DD.MM.YYYY')}
-                    </Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Group gap="xs">
-                      <ActionIcon
-                        variant="light"
-                        color="blue"
-                        size="sm"
-                        onClick={() => showQRCode(item.itemSN)}
-                      >
-                        <IconQrcode size={14} />
-                      </ActionIcon>
-                      {editable && (
-                        <>
-                          <ActionIcon
-                            variant="light"
-                            color="orange"
-                            size="sm"
-                            onClick={() => openEditModal(item)}
-                          >
-                            <IconEdit size={14} />
-                          </ActionIcon>
-                          <ActionIcon
-                            variant="light"
-                            color="red"
-                            size="sm"
-                            onClick={() => handleDelete(item.itemSN)}
-                          >
-                            <IconTrash size={14} />
-                          </ActionIcon>
-                        </>
-                      )}
-                    </Group>
-                  </Table.Td>
+          </Group>
+        )}
+
+        {items.length === 0 ? (
+          <Paper p="xl" ta="center">
+            <Text size="lg" c="dimmed">
+              Noch keine PSA-Items vorhanden
+            </Text>
+            {editable && (
+              <Button
+                leftSection={<IconPlus size={16} />}
+                mt="md"
+                onClick={openAddModal}
+              >
+                Erstes Item hinzufügen
+              </Button>
+            )}
+          </Paper>
+        ) : (
+          <Table.ScrollContainer minWidth={800}>
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Beschreibung</Table.Th>
+                  <Table.Th>EN-Norm</Table.Th>
+                  <Table.Th>Seriennummer</Table.Th>
+                  <Table.Th>Baujahr</Table.Th>
+                  <Table.Th>Zustand</Table.Th>
+                  <Table.Th>Ergebnis</Table.Th>
+                  <Table.Th>Nächste Prüfung</Table.Th>
+                  <Table.Th>Aktionen</Table.Th>
                 </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-      )}
+              </Table.Thead>
+              <Table.Tbody>
+                {items.map((item, index) => (
+                  <Table.Tr key={`${item.itemSN}-${index}`}>
+                    <Table.Td>
+                      <Text size="sm" fw={500}>{item.itemDescription}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm">{item.enNorm}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm" fw={500}>{item.itemSN}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm">{item.baujahr}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm">{item.zustand}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color={getErgebnisColor(item.ergebnis)} size="sm">
+                        {item.ergebnis}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm">
+                        {dayjs(item.naechstePruefung).format('DD.MM.YYYY')}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap="xs">
+                        <ActionIcon
+                          variant="light"
+                          color="blue"
+                          size="sm"
+                          onClick={() => showQRCode(item.itemSN)}
+                        >
+                          <IconQrcode size={14} />
+                        </ActionIcon>
+                        {editable && (
+                          <>
+                            <ActionIcon
+                              variant="light"
+                              color="orange"
+                              size="sm"
+                              onClick={() => openEditModal(item)}
+                            >
+                              <IconEdit size={14} />
+                            </ActionIcon>
+                            <ActionIcon
+                              variant="light"
+                              color="red"
+                              size="sm"
+                              onClick={() => handleDelete(item.itemSN)}
+                            >
+                              <IconTrash size={14} />
+                            </ActionIcon>
+                          </>
+                        )}
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
+        )}
+      </Stack>
 
       {/* Add/Edit Item Modal */}
       <Modal
@@ -281,8 +283,13 @@ export function ItemTable({ items, onChange, editable = false }: ItemTableProps)
         onClose={() => setOpened(false)}
         title={editingItem ? 'Item bearbeiten' : 'Neues Item hinzufügen'}
         size="lg"
+        centered
+        id='item-modal'
       >
-        <form onSubmit={form.onSubmit(handleSubmit)}>
+        <Form
+          form={form}
+          onSubmit={handleSubmit}
+        >
           <Stack gap="md">
             <Grid>
               <Grid.Col span={12}>
@@ -314,7 +321,7 @@ export function ItemTable({ items, onChange, editable = false }: ItemTableProps)
                   required
                   label="Baujahr"
                   placeholder="YYYY"
-                  min={1900}
+                  min={1990}
                   max={new Date().getFullYear() + 1}
                   {...form.getInputProps('baujahr')}
                 />
@@ -355,7 +362,7 @@ export function ItemTable({ items, onChange, editable = false }: ItemTableProps)
               </Button>
             </Group>
           </Stack>
-        </form>
+        </Form>
       </Modal>
 
       {/* QR Code Modal */}
@@ -365,19 +372,19 @@ export function ItemTable({ items, onChange, editable = false }: ItemTableProps)
         title="QR-Code für Seriennummer"
         size="sm"
         centered
+        id="qr-modal"
       >
         <Stack align="center" gap="md">
           <QRCodeSVG
             value={selectedSN}
             size={200}
             level="M"
-            includeMargin
           />
           <Text ta="center" fw={500}>
             Seriennummer: {selectedSN}
           </Text>
         </Stack>
       </Modal>
-    </Stack>
+    </>
   );
 }

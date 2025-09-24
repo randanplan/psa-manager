@@ -22,7 +22,7 @@ function App() {
 
   if (loading) {
     return (
-      <MantineProvider defaultColorScheme="light">
+      <MantineProvider defaultColorScheme="dark">
         <Container size="sm" pt="xl">
           <Title order={2} ta="center">PSA-Manager wird geladen...</Title>
         </Container>
@@ -32,7 +32,7 @@ function App() {
 
   if (!user) {
     return (
-      <MantineProvider defaultColorScheme="light">
+      <MantineProvider defaultColorScheme="dark">
         <Notifications />
         <Login />
       </MantineProvider>
@@ -40,7 +40,7 @@ function App() {
   }
 
   return (
-    <MantineProvider defaultColorScheme="light">
+    <MantineProvider defaultColorScheme="dark">
       <Notifications />
       <Router>
         <AppShell

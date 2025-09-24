@@ -17,6 +17,7 @@ tmp
 temp
 
 # Package Lock files
+package-lock*
 package-lock.json
 yarn.lock
 .pnpm-lock.yaml
@@ -32,3 +33,14 @@ yarn.lock
 *.sln
 *.sw?
 *.code-workspace
+
+# QWEN specific
+.gwen/  # QWEN model files
+QWEN
+*.qwen
+
+# GEMINI specific
+.gemini/  # GEMINI model files
+GEMINI
+*.gemini
+.vercel

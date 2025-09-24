@@ -96,33 +96,35 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       loading: true,
-      
+
       initialize: async () => {
         try {
           const { data: { session } } = await supabase.auth.getSession();
           set({ user: session?.user ?? null, loading: false });
-          
+
           const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (_event, session) => {
+              console.log('Auth state changed:', session);
               set({ user: session?.user ?? null });
             }
           );
-          
+
           return () => subscription.unsubscribe();
         } catch (error) {
           console.error('Error initializing auth:', error);
           set({ loading: false });
         }
       },
-      
+
       signIn: async (email: string, password: string) => {
         set({ loading: true });
         try {
-          const { error } = await supabase.auth.signInWithPassword({
+          const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
           });
           if (error) throw error;
+          console.log('Sign-in successful:', data);
         } catch (error) {
           console.error('Error signing in:', error);
           throw error;
@@ -130,15 +132,17 @@ export const useAuthStore = create<AuthState>()(
           set({ loading: false });
         }
       },
-      
+
       signUp: async (email: string, password: string) => {
         set({ loading: true });
         try {
-          const { error } = await supabase.auth.signUp({
+          const { data, error } = await supabase.auth.signUp({
             email,
             password,
           });
           if (error) throw error;
+          console.log('Sign-up successful:', data);
+
         } catch (error) {
           console.error('Error signing up:', error);
           throw error;
@@ -146,7 +150,7 @@ export const useAuthStore = create<AuthState>()(
           set({ loading: false });
         }
       },
-      
+
       signOut: async () => {
         set({ loading: true });
         try {
@@ -162,17 +166,17 @@ export const useAuthStore = create<AuthState>()(
 
       // Demo mode sign in
       signInDemo: () => {
-        set({ 
-          user: { 
-            id: 'demo-user', 
+        set({
+          user: {
+            id: 'demo-user',
             email: 'demo@psa-manager.de',
             aud: 'authenticated',
             role: 'authenticated',
             created_at: new Date().toISOString(),
             app_metadata: {},
             user_metadata: {}
-          } as User, 
-          loading: false 
+          } as User,
+          loading: false
         });
       },
     }),
@@ -188,7 +192,7 @@ export const useReportStore = create<ReportState>()(
         loading: false,
         error: null,
         demoMode: false,
-        
+
         fetchReports: async () => {
           // Check if in demo mode
           if (get().demoMode) {
@@ -198,13 +202,15 @@ export const useReportStore = create<ReportState>()(
 
           set({ loading: true, error: null });
           try {
-            const { data, error } = await supabase
+            const { data, error, status ,statusText, count } = await supabase
               .from('psa_reports')
               .select('*')
               .order('created_at', { ascending: false });
-              
+
             if (error) throw error;
-            
+
+            console.log('Fetch reports response:', { data, error, status, statusText, count });
+
             const reports: PsaReport[] = (data || []).map((row: any) => ({
               id: row.id,
               anwender: row.anwender,
@@ -217,14 +223,14 @@ export const useReportStore = create<ReportState>()(
               createdBy: row.created_by,
               updatedBy: row.updated_by,
             }));
-            
+
             set({ reports, loading: false });
           } catch (error) {
             console.error('Error fetching reports:', error);
             set({ error: 'Failed to fetch reports', loading: false });
           }
         },
-        
+
         createReport: async (report) => {
           // Check if in demo mode
           if (get().demoMode) {
@@ -236,18 +242,18 @@ export const useReportStore = create<ReportState>()(
               createdBy: 'demo-user',
               updatedBy: 'demo-user',
             };
-            
-            set(state => ({ 
+
+            set(state => ({
               reports: [newReport, ...state.reports],
-              loading: false 
+              loading: false
             }));
-            
+
             return newReport.id;
           }
 
           set({ loading: true, error: null });
           try {
-            const { data, error } = await supabase
+            const { data, error, status, statusText, count } = await supabase
               .from('psa_reports')
               .insert({
                 anwender: report.anwender,
@@ -259,9 +265,9 @@ export const useReportStore = create<ReportState>()(
               } as any)
               .select()
               .single();
-              
+
             if (error) throw error;
-            
+            console.log('Create report response:', { data, error, status, statusText, count });
             const newReport: PsaReport = {
               id: data.id,
               anwender: data.anwender,
@@ -274,12 +280,12 @@ export const useReportStore = create<ReportState>()(
               createdBy: data.created_by,
               updatedBy: data.updated_by,
             };
-            
-            set(state => ({ 
+
+            set(state => ({
               reports: [newReport, ...state.reports],
-              loading: false 
+              loading: false
             }));
-            
+
             return data.id;
           } catch (error) {
             console.error('Error creating report:', error);
@@ -287,7 +293,7 @@ export const useReportStore = create<ReportState>()(
             throw error;
           }
         },
-        
+
         updateReport: async (id, reportUpdate) => {
           // Check if in demo mode
           if (get().demoMode) {
@@ -305,12 +311,12 @@ export const useReportStore = create<ReportState>()(
 
           set({ loading: true, error: null });
           try {
-            const { data, error } = await supabase
+            const { data, error, status, count, statusText } = await supabase
               .from('psa_reports')
               .update({
                 ...reportUpdate,
-                datum: reportUpdate.datum && typeof reportUpdate.datum !== 'string' 
-                  ? reportUpdate.datum.toISOString() 
+                datum: reportUpdate.datum && typeof reportUpdate.datum !== 'string'
+                  ? reportUpdate.datum.toISOString()
                   : reportUpdate.datum,
                 updated_by: useAuthStore.getState().user?.id,
                 updated_at: new Date().toISOString(),
@@ -318,9 +324,11 @@ export const useReportStore = create<ReportState>()(
               .eq('id', id)
               .select()
               .single();
-              
+
+            console.log('Update report response:', { data, error, status, count, statusText });
+
             if (error) throw error;
-            
+
             const updatedReport: PsaReport = {
               id: data.id,
               anwender: data.anwender,
@@ -333,7 +341,7 @@ export const useReportStore = create<ReportState>()(
               createdBy: data.created_by,
               updatedBy: data.updated_by,
             };
-            
+
             set(state => ({
               reports: state.reports.map(r => r.id === id ? updatedReport : r),
               loading: false
@@ -344,7 +352,7 @@ export const useReportStore = create<ReportState>()(
             throw error;
           }
         },
-        
+
         deleteReport: async (id) => {
           // Check if in demo mode
           if (get().demoMode) {
@@ -357,13 +365,15 @@ export const useReportStore = create<ReportState>()(
 
           set({ loading: true, error: null });
           try {
-            const { error } = await supabase
+            const { data, error, count, status, statusText } = await supabase
               .from('psa_reports')
               .delete()
               .eq('id', id);
-              
+
+            console.log('Delete report response:', { data, error, count, status, statusText });
+
             if (error) throw error;
-            
+
             set(state => ({
               reports: state.reports.filter(r => r.id !== id),
               loading: false
@@ -374,21 +384,21 @@ export const useReportStore = create<ReportState>()(
             throw error;
           }
         },
-        
+
         getReportById: (id) => {
           return get().reports.find(r => r.id === id);
         },
-        
+
         searchReports: (query) => {
           const reports = get().reports;
           const lowerQuery = query.toLowerCase();
-          return reports.filter(report => 
+          return reports.filter(report =>
             report.anwender.toLowerCase().includes(lowerQuery) ||
             report.prueferName?.toLowerCase().includes(lowerQuery) ||
             report.ort?.toLowerCase().includes(lowerQuery)
           );
         },
-        
+
         filterReportsByYear: (year) => {
           const reports = get().reports;
           return reports.filter(report => {
@@ -399,10 +409,10 @@ export const useReportStore = create<ReportState>()(
 
         // Demo mode
         loadSampleData: () => {
-          set({ 
-            reports: sampleReports, 
-            demoMode: true, 
-            loading: false 
+          set({
+            reports: sampleReports,
+            demoMode: true,
+            loading: false
           });
         },
       }),
