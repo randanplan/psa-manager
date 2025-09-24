@@ -309,6 +309,7 @@ export const useReportStore = create<ReportState>()(
               loading: false
             }));
 
+            console.log('Report successfully created and added to store:', newReport);
             return data.id;
           } catch (error) {
             console.error('Error creating report:', error);

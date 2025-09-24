@@ -34,7 +34,7 @@ interface FormValues {
 
 export function ReportForm({ report, isEditing = false }: ReportFormProps) {
   const navigate = useNavigate();
-  const { createReport, updateReport } = useReportStore();
+  const { createReport, updateReport, fetchReports } = useReportStore();
   const [items, setItems] = useState<PsaReportItem[]>(report?.items || []);
   const [loading, setLoading] = useState(false);
 
@@ -85,6 +85,11 @@ export function ReportForm({ report, isEditing = false }: ReportFormProps) {
           message: 'Bericht wurde erstellt',
           color: 'green',
         });
+        
+        // Warte kurz und lade die Reports neu, bevor navigiert wird
+        await new Promise(resolve => setTimeout(resolve, 100));
+        await fetchReports();
+        
         navigate(`/view/${reportId}`);
         return;
       }

@@ -38,9 +38,16 @@ export function ViewReport() {
   useEffect(() => {
     const loadReport = async () => {
       try {
-        await fetchReports();
+        // Erst versuchen, den Report aus dem lokalen Store zu holen
         if (id) {
-          const foundReport = getReportById(id);
+          let foundReport = getReportById(id);
+          
+          // Wenn nicht gefunden, Reports neu laden
+          if (!foundReport) {
+            await fetchReports();
+            foundReport = getReportById(id);
+          }
+          
           setReport(foundReport || null);
         }
       } catch (error) {
