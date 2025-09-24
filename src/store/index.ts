@@ -259,23 +259,38 @@ export const useReportStore = create<ReportState>()(
 
           set({ loading: true, error: null });
           try {
+            // Debug: Check current user
+            const currentUser = useAuthStore.getState().user;
+            console.log('Current user when creating report:', currentUser);
+            
+            if (!currentUser) {
+              throw new Error('Kein Benutzer angemeldet');
+            }
+
+            const reportData = {
+              anwender: report.anwender,
+              prueferName: report.prueferName,
+              ort: report.ort,
+              datum: typeof report.datum === 'string' ? report.datum : report.datum.toISOString(),
+              items: report.items,
+              created_by: currentUser.id,
+            };
+
+            console.log('Creating report with data:', reportData);
+
             const { data, error, status, statusText, count } = await supabase
               .from('psa_reports')
-              .insert({
-                anwender: report.anwender,
-                prueferName: report.prueferName,
-                ort: report.ort,
-                datum: typeof report.datum === 'string' ? report.datum : report.datum.toISOString(),
-                items: report.items,
-                created_by: useAuthStore.getState().user?.id,
-              } as any)
+              .insert(reportData as any)
               .select()
               .single();
 
-            if (error) throw error;
-            if (process.env.NODE_ENV === 'development') {
-              console.log('Create report response:', { data, error, status, statusText, count });
+            console.log('Create report response:', { data, error, status, statusText, count });
+
+            if (error) {
+              console.error('Supabase error details:', error);
+              throw error;
             }
+
             const newReport: PsaReport = {
               id: data.id,
               anwender: data.anwender,
@@ -297,7 +312,7 @@ export const useReportStore = create<ReportState>()(
             return data.id;
           } catch (error) {
             console.error('Error creating report:', error);
-            set({ error: 'Failed to create report', loading: false });
+            set({ error: `Failed to create report: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`, loading: false });
             throw error;
           }
         },
