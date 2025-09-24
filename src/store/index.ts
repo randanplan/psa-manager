@@ -104,7 +104,9 @@ export const useAuthStore = create<AuthState>()(
 
           const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (_event, session) => {
-              console.log('Auth state changed:', session);
+              if (process.env.NODE_ENV !== 'production') {
+                console.log('Auth state changed:', session);
+              }
               set({ user: session?.user ?? null });
             }
           );
@@ -141,7 +143,9 @@ export const useAuthStore = create<AuthState>()(
             password,
           });
           if (error) throw error;
-          console.log('Sign-up successful:', data);
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Sign-up successful:', data);
+          }
 
         } catch (error) {
           console.error('Error signing up:', error);
@@ -209,7 +213,9 @@ export const useReportStore = create<ReportState>()(
 
             if (error) throw error;
 
-            console.log('Fetch reports response:', { data, error, status, statusText, count });
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Fetch reports response:', { data, error, status, statusText, count });
+            }
 
             const reports: PsaReport[] = (data || []).map((row: any) => ({
               id: row.id,
@@ -267,7 +273,9 @@ export const useReportStore = create<ReportState>()(
               .single();
 
             if (error) throw error;
-            console.log('Create report response:', { data, error, status, statusText, count });
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Create report response:', { data, error, status, statusText, count });
+            }
             const newReport: PsaReport = {
               id: data.id,
               anwender: data.anwender,
@@ -325,7 +333,9 @@ export const useReportStore = create<ReportState>()(
               .select()
               .single();
 
-            console.log('Update report response:', { data, error, status, count, statusText });
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Update report response:', { data, error, status, count, statusText });
+            }
 
             if (error) throw error;
 
@@ -370,7 +380,9 @@ export const useReportStore = create<ReportState>()(
               .delete()
               .eq('id', id);
 
-            console.log('Delete report response:', { data, error, count, status, statusText });
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Delete report response:', { data, error, count, status, statusText });
+            }
 
             if (error) throw error;
 
