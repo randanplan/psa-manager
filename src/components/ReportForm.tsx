@@ -34,7 +34,7 @@ interface FormValues {
 
 export function ReportForm({ report, isEditing = false }: ReportFormProps) {
   const navigate = useNavigate();
-  const { createReport, updateReport, fetchReports } = useReportStore();
+  const { createReport, updateReport } = useReportStore();
   const [items, setItems] = useState<PsaReportItem[]>(report?.items || []);
   const [loading, setLoading] = useState(false);
 
@@ -79,21 +79,18 @@ export function ReportForm({ report, isEditing = false }: ReportFormProps) {
           color: 'green',
         });
       } else {
-        const reportId = await createReport(reportData);
+        await createReport(reportData);
         notifications.show({
           title: 'Erfolg',
-          message: 'Bericht wurde erstellt',
+          message: 'Bericht wurde erstellt und wird im Dashboard angezeigt',
           color: 'green',
         });
-        
-        // Warte kurz und lade die Reports neu, bevor navigiert wird
-        await new Promise(resolve => setTimeout(resolve, 100));
-        await fetchReports();
-        
-        navigate(`/view/${reportId}`);
+
+        // Navigiere zurück zum Dashboard - es wird automatisch neu geladen
+        navigate('/', { replace: true });
         return;
       }
-      
+
       navigate('/');
     } catch {
       notifications.show({

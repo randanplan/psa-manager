@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "browser-use": {
+      "command": "uvx",
+      "args": ["mcp-server-browser-use@latest"],
+      "env": {
+        "MCP_LLM_GOOGLE_API_KEY": "AIzaSyAdqiQvUZAW1SIZXN-hrZQZzxapMp0lrJ8",
+        "MCP_LLM_PROVIDER": "google",
+        "MCP_LLM_MODEL_NAME": "gemini-2.5-flash",
+        "MCP_BROWSER_HEADLESS": "false",
+        "MCP_BROWSER_WINDOW_WIDTH": "1440",
+        "MCP_BROWSER_WINDOW_HEIGHT": "1080",
+        "MCP_AGENT_TOOL_USE_VISION": "true",
+        "MCP_RESEARCH_TOOL_SAVE_DIR": "C:\\Users\\Administrator\\CodeSpace\\research_tool_data",
+        "MCP_RESEARCH_TOOL_MAX_PARALLEL_BROWSERS": "5",
+        "MCP_PATHS_DOWNLOADS": "C:\\Users\\Administrator\\Downloads",
+        "MCP_AGENT_TOOL_HISTORY_PATH": "C:\\Users\\Administrator\\CodeSpace\\agent_tool_history"
+      }
+    }
+  }
+}

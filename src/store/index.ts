@@ -235,9 +235,7 @@ export const useReportStore = create<ReportState>()(
             console.error('Error fetching reports:', error);
             set({ error: 'Failed to fetch reports', loading: false });
           }
-        },
-
-        createReport: async (report) => {
+        },        createReport: async (report) => {
           // Check if in demo mode
           if (get().demoMode) {
             const newReport: PsaReport = {
@@ -259,9 +257,7 @@ export const useReportStore = create<ReportState>()(
 
           set({ loading: true, error: null });
           try {
-            // Debug: Check current user
             const currentUser = useAuthStore.getState().user;
-            console.log('Current user when creating report:', currentUser);
             
             if (!currentUser) {
               throw new Error('Kein Benutzer angemeldet');
@@ -276,18 +272,13 @@ export const useReportStore = create<ReportState>()(
               created_by: currentUser.id,
             };
 
-            console.log('Creating report with data:', reportData);
-
-            const { data, error, status, statusText, count } = await supabase
+            const { data, error } = await supabase
               .from('psa_reports')
               .insert(reportData as any)
               .select()
               .single();
 
-            console.log('Create report response:', { data, error, status, statusText, count });
-
             if (error) {
-              console.error('Supabase error details:', error);
               throw error;
             }
 
@@ -309,7 +300,6 @@ export const useReportStore = create<ReportState>()(
               loading: false
             }));
 
-            console.log('Report successfully created and added to store:', newReport);
             return data.id;
           } catch (error) {
             console.error('Error creating report:', error);

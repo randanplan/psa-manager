@@ -23,42 +23,55 @@ import dayjs from 'dayjs';
 import type { PsaReportItem } from '../types';
 
 export function Dashboard() {
-  const { 
-    reports, 
-    loading, 
-    error, 
-    fetchReports, 
-    deleteReport, 
-    searchReports, 
-    filterReportsByYear 
+  const {
+    reports,
+    loading,
+    error,
+    fetchReports,
+    deleteReport,
+    searchReports,
+    filterReportsByYear
   } = useReportStore();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [yearFilter, setYearFilter] = useState<string>('');
   const [filteredReports, setFilteredReports] = useState(reports);
 
   useEffect(() => {
+    // Lade Reports beim Mounten und auch bei jeder Navigation zum Dashboard
     fetchReports();
+  }, [fetchReports]);
+
+  // Zusätzlich: Lade Reports neu, wenn die Komponente fokussiert wird
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchReports();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [fetchReports]);
 
   useEffect(() => {
     let filtered = reports;
-    
+
     if (searchQuery) {
       filtered = searchReports(searchQuery);
     }
-    
+
     if (yearFilter) {
       filtered = filterReportsByYear(parseInt(yearFilter));
     }
-    
+
     if (searchQuery && yearFilter) {
       filtered = searchReports(searchQuery).filter(report => {
         const reportDate = new Date(report.datum);
         return reportDate.getFullYear() === parseInt(yearFilter);
       });
     }
-    
+
     setFilteredReports(filtered);
   }, [reports, searchQuery, yearFilter, searchReports, filterReportsByYear]);
 
@@ -160,7 +173,7 @@ export function Dashboard() {
         {filteredReports.length === 0 ? (
           <Paper p="xl" ta="center">
             <Text size="lg" c="dimmed">
-              {reports.length === 0 
+              {reports.length === 0
                 ? 'Noch keine Berichte vorhanden. Erstellen Sie Ihren ersten Bericht!'
                 : 'Keine Berichte entsprechen den Suchkriterien.'
               }
