@@ -13,6 +13,9 @@ import {
   Badge,
   Text,
   Paper,
+  Card,
+  SimpleGrid,
+  useMatches,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm, Form } from '@mantine/form';
@@ -51,6 +54,12 @@ export function ItemTable({ items, onChange, editable = false }: ItemTableProps)
   const [editingItem, setEditingItem] = useState<PsaReportItem | null>(null);
   const [qrModalOpened, setQrModalOpened] = useState(false);
   const [selectedSN, setSelectedSN] = useState('');
+
+  // Mobile responsive breakpoint
+  const isMobile = useMatches({
+    base: true,
+    md: false,
+  });
 
   const form = useForm<ItemFormValues>({
     initialValues: {
@@ -195,85 +204,171 @@ export function ItemTable({ items, onChange, editable = false }: ItemTableProps)
             )}
           </Paper>
         ) : (
-          <Table.ScrollContainer minWidth={800}>
-            <Table striped highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Beschreibung</Table.Th>
-                  <Table.Th>EN-Norm</Table.Th>
-                  <Table.Th>Seriennummer</Table.Th>
-                  <Table.Th>Baujahr</Table.Th>
-                  <Table.Th>Zustand</Table.Th>
-                  <Table.Th>Ergebnis</Table.Th>
-                  <Table.Th>Nächste Prüfung</Table.Th>
-                  <Table.Th>Aktionen</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
+          <>
+            {/* Desktop Table View */}
+            {!isMobile && (
+              <Table.ScrollContainer minWidth={800}>
+                <Table striped highlightOnHover>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Beschreibung</Table.Th>
+                      <Table.Th>EN-Norm</Table.Th>
+                      <Table.Th>Seriennummer</Table.Th>
+                      <Table.Th>Baujahr</Table.Th>
+                      <Table.Th>Zustand</Table.Th>
+                      <Table.Th>Ergebnis</Table.Th>
+                      <Table.Th>Nächste Prüfung</Table.Th>
+                      <Table.Th>Aktionen</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {items.map((item, index) => (
+                      <Table.Tr key={`${item.itemSN}-${index}`}>
+                        <Table.Td>
+                          <Text size="sm" fw={500}>{item.itemDescription}</Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Text size="sm">{item.enNorm}</Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Text size="sm" fw={500}>{item.itemSN}</Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Text size="sm">{item.baujahr}</Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Text size="sm">{item.zustand}</Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Badge color={getErgebnisColor(item.ergebnis)} size="sm">
+                            {item.ergebnis}
+                          </Badge>
+                        </Table.Td>
+                        <Table.Td>
+                          <Text size="sm">
+                            {dayjs(item.naechstePruefung).format('DD.MM.YYYY')}
+                          </Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Group gap="xs">
+                            <ActionIcon
+                              variant="light"
+                              color="blue"
+                              size="sm"
+                              onClick={() => showQRCode(item.itemSN)}
+                            >
+                              <IconQrcode size={14} />
+                            </ActionIcon>
+                            {editable && (
+                              <>
+                                <ActionIcon
+                                  variant="light"
+                                  color="orange"
+                                  size="sm"
+                                  onClick={() => openEditModal(item)}
+                                >
+                                  <IconEdit size={14} />
+                                </ActionIcon>
+                                <ActionIcon
+                                  variant="light"
+                                  color="red"
+                                  size="sm"
+                                  onClick={() => handleDelete(item.itemSN)}
+                                >
+                                  <IconTrash size={14} />
+                                </ActionIcon>
+                              </>
+                            )}
+                          </Group>
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </Table.ScrollContainer>
+            )}
+
+            {/* Mobile Card View */}
+            {isMobile && (
+              <SimpleGrid cols={1} spacing="md">
                 {items.map((item, index) => (
-                  <Table.Tr key={`${item.itemSN}-${index}`}>
-                    <Table.Td>
-                      <Text size="sm" fw={500}>{item.itemDescription}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm">{item.enNorm}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm" fw={500}>{item.itemSN}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm">{item.baujahr}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm">{item.zustand}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge color={getErgebnisColor(item.ergebnis)} size="sm">
-                        {item.ergebnis}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm">
-                        {dayjs(item.naechstePruefung).format('DD.MM.YYYY')}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Group gap="xs">
-                        <ActionIcon
+                  <Card key={`${item.itemSN}-${index}`} withBorder padding="md">
+                    <Stack gap="xs">
+                      <Group justify="space-between" align="start">
+                        <div>
+                          <Text fw={600} size="sm">{item.itemDescription}</Text>
+                          <Text size="xs" c="dimmed">SN: {item.itemSN}</Text>
+                        </div>
+                        <Badge color={getErgebnisColor(item.ergebnis)} size="sm">
+                          {item.ergebnis}
+                        </Badge>
+                      </Group>
+
+                      <Grid>
+                        <Grid.Col span={6}>
+                          <Text size="xs">
+                            <Text component="span" fw={500}>EN-Norm: </Text>
+                            {item.enNorm}
+                          </Text>
+                        </Grid.Col>
+                        <Grid.Col span={6}>
+                          <Text size="xs">
+                            <Text component="span" fw={500}>Baujahr: </Text>
+                            {item.baujahr}
+                          </Text>
+                        </Grid.Col>
+                        <Grid.Col span={12}>
+                          <Text size="xs">
+                            <Text component="span" fw={500}>Zustand: </Text>
+                            {item.zustand}
+                          </Text>
+                        </Grid.Col>
+                        <Grid.Col span={12}>
+                          <Text size="xs">
+                            <Text component="span" fw={500}>Nächste Prüfung: </Text>
+                            {dayjs(item.naechstePruefung).format('DD.MM.YYYY')}
+                          </Text>
+                        </Grid.Col>
+                      </Grid>
+
+                      <Group justify="flex-end" gap="xs" mt="xs">
+                        <Button
                           variant="light"
-                          color="blue"
-                          size="sm"
+                          size="xs"
                           onClick={() => showQRCode(item.itemSN)}
+                          leftSection={<IconQrcode size={12} />}
                         >
-                          <IconQrcode size={14} />
-                        </ActionIcon>
+                          QR
+                        </Button>
                         {editable && (
                           <>
-                            <ActionIcon
+                            <Button
                               variant="light"
                               color="orange"
-                              size="sm"
+                              size="xs"
                               onClick={() => openEditModal(item)}
+                              leftSection={<IconEdit size={12} />}
                             >
-                              <IconEdit size={14} />
-                            </ActionIcon>
-                            <ActionIcon
+                              Bearbeiten
+                            </Button>
+                            <Button
                               variant="light"
                               color="red"
-                              size="sm"
+                              size="xs"
                               onClick={() => handleDelete(item.itemSN)}
+                              leftSection={<IconTrash size={12} />}
                             >
-                              <IconTrash size={14} />
-                            </ActionIcon>
+                              Löschen
+                            </Button>
                           </>
                         )}
                       </Group>
-                    </Table.Td>
-                  </Table.Tr>
+                    </Stack>
+                  </Card>
                 ))}
-              </Table.Tbody>
-            </Table>
-          </Table.ScrollContainer>
+              </SimpleGrid>
+            )}
+          </>
         )}
       </Stack>
 

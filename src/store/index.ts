@@ -258,7 +258,7 @@ export const useReportStore = create<ReportState>()(
           set({ loading: true, error: null });
           try {
             const currentUser = useAuthStore.getState().user;
-            
+
             if (!currentUser) {
               throw new Error('Kein Benutzer angemeldet');
             }

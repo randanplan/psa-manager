@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { MantineProvider, AppShell, Group, Title, Button, Container } from '@mantine/core';
+import { MantineProvider, AppShell, Group, Title, Button, Container, useMatches, Text } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
@@ -15,6 +15,12 @@ import { Login } from './pages/Login';
 
 function App() {
   const { user, loading, initialize, signOut } = useAuthStore();
+
+  // Responsive breakpoint für mobile Ansicht
+  const isMobile = useMatches({
+    base: true,
+    sm: false,
+  });
 
   useEffect(() => {
     initialize();
@@ -49,10 +55,18 @@ function App() {
         >
           <AppShell.Header>
             <Group h="100%" px="md" justify="space-between">
-              <Title order={2} c="blue">PSA-Manager</Title>
-              <Group>
-                <span>Willkommen, {user.email}</span>
-                <Button variant="light" onClick={signOut}>
+              <Title order={isMobile ? 3 : 2} c="blue">
+                {isMobile ? 'PSA' : 'PSA-Manager'}
+              </Title>
+              <Group gap={isMobile ? 'xs' : 'md'}>
+                {!isMobile && (
+                  <Text size="sm">Willkommen, {user.email}</Text>
+                )}
+                <Button
+                  variant="light"
+                  onClick={signOut}
+                  size={isMobile ? 'xs' : 'sm'}
+                >
                   Abmelden
                 </Button>
               </Group>

@@ -15,6 +15,9 @@ import {
   Loader,
   Alert,
   Select,
+  Card,
+  SimpleGrid,
+  useMatches,
 } from '@mantine/core';
 import { IconPlus, IconEye, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
 import { useReportStore } from '../store';
@@ -36,6 +39,12 @@ export function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [yearFilter, setYearFilter] = useState<string>('');
   const [filteredReports, setFilteredReports] = useState(reports);
+
+  // Responsive breakpoint - show cards on mobile, table on desktop
+  const isMobile = useMatches({
+    base: true,
+    md: false,
+  });
 
   useEffect(() => {
     // Lade Reports beim Mounten und auch bei jeder Navigation zum Dashboard
@@ -190,70 +199,151 @@ export function Dashboard() {
             )}
           </Paper>
         ) : (
-          <Paper withBorder>
-            <Table.ScrollContainer minWidth={800}>
-              <Table striped highlightOnHover>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Anwender</Table.Th>
-                    <Table.Th>Prüfer</Table.Th>
-                    <Table.Th>Ort</Table.Th>
-                    <Table.Th>Datum</Table.Th>
-                    <Table.Th>Anzahl Items</Table.Th>
-                    <Table.Th>Status</Table.Th>
-                    <Table.Th>Aktionen</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {filteredReports.map((report) => (
-                    <Table.Tr key={report.id}>
-                      <Table.Td>
-                        <Text fw={500}>{report.anwender}</Text>
-                      </Table.Td>
-                      <Table.Td>{report.prueferName || '-'}</Table.Td>
-                      <Table.Td>{report.ort || '-'}</Table.Td>
-                      <Table.Td>
-                        {dayjs(report.datum).format('DD.MM.YYYY')}
-                      </Table.Td>
-                      <Table.Td>{report.items.length}</Table.Td>
-                      <Table.Td>
+          <>
+            {/* Desktop Table View */}
+            {!isMobile && (
+              <Paper withBorder>
+                <Table.ScrollContainer minWidth={800}>
+                  <Table striped highlightOnHover>
+                    <Table.Thead>
+                      <Table.Tr>
+                        <Table.Th>Anwender</Table.Th>
+                        <Table.Th>Prüfer</Table.Th>
+                        <Table.Th>Ort</Table.Th>
+                        <Table.Th>Datum</Table.Th>
+                        <Table.Th>Anzahl Items</Table.Th>
+                        <Table.Th>Status</Table.Th>
+                        <Table.Th>Aktionen</Table.Th>
+                      </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                      {filteredReports.map((report) => (
+                        <Table.Tr key={report.id}>
+                          <Table.Td>
+                            <Text fw={500}>{report.anwender}</Text>
+                          </Table.Td>
+                          <Table.Td>{report.prueferName || '-'}</Table.Td>
+                          <Table.Td>{report.ort || '-'}</Table.Td>
+                          <Table.Td>
+                            {dayjs(report.datum).format('DD.MM.YYYY')}
+                          </Table.Td>
+                          <Table.Td>{report.items.length}</Table.Td>
+                          <Table.Td>
+                            <Badge color={getErgebnisColor(getWorstErgebnis(report.items))}>
+                              {getWorstErgebnis(report.items)}
+                            </Badge>
+                          </Table.Td>
+                          <Table.Td>
+                            <Group gap="xs">
+                              <ActionIcon
+                                variant="light"
+                                color="blue"
+                                component={Link}
+                                to={`/view/${report.id}`}
+                              >
+                                <IconEye size={16} />
+                              </ActionIcon>
+                              <ActionIcon
+                                variant="light"
+                                color="orange"
+                                component={Link}
+                                to={`/edit/${report.id}`}
+                              >
+                                <IconEdit size={16} />
+                              </ActionIcon>
+                              <ActionIcon
+                                variant="light"
+                                color="red"
+                                onClick={() => handleDelete(report.id)}
+                              >
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </Group>
+                          </Table.Td>
+                        </Table.Tr>
+                      ))}
+                    </Table.Tbody>
+                  </Table>
+                </Table.ScrollContainer>
+              </Paper>
+            )}
+
+            {/* Mobile Card View */}
+            {isMobile && (
+              <SimpleGrid cols={1} spacing="md">
+                {filteredReports.map((report) => (
+                  <Card key={report.id} withBorder padding="lg">
+                    <Stack gap="sm">
+                      <Group justify="space-between" align="start">
+                        <div>
+                          <Text fw={600} size="lg">{report.anwender}</Text>
+                          <Text size="sm" c="dimmed">
+                            {dayjs(report.datum).format('DD.MM.YYYY')}
+                          </Text>
+                        </div>
                         <Badge color={getErgebnisColor(getWorstErgebnis(report.items))}>
                           {getWorstErgebnis(report.items)}
                         </Badge>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap="xs">
-                          <ActionIcon
-                            variant="light"
-                            color="blue"
-                            component={Link}
-                            to={`/view/${report.id}`}
-                          >
-                            <IconEye size={16} />
-                          </ActionIcon>
-                          <ActionIcon
-                            variant="light"
-                            color="orange"
-                            component={Link}
-                            to={`/edit/${report.id}`}
-                          >
-                            <IconEdit size={16} />
-                          </ActionIcon>
-                          <ActionIcon
-                            variant="light"
-                            color="red"
-                            onClick={() => handleDelete(report.id)}
-                          >
-                            <IconTrash size={16} />
-                          </ActionIcon>
-                        </Group>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Table.ScrollContainer>
-          </Paper>
+                      </Group>
+
+                      {(report.prueferName || report.ort) && (
+                        <Stack gap={4}>
+                          {report.prueferName && (
+                            <Text size="sm">
+                              <Text component="span" fw={500}>Prüfer: </Text>
+                              {report.prueferName}
+                            </Text>
+                          )}
+                          {report.ort && (
+                            <Text size="sm">
+                              <Text component="span" fw={500}>Ort: </Text>
+                              {report.ort}
+                            </Text>
+                          )}
+                        </Stack>
+                      )}
+
+                      <Text size="sm">
+                        <Text component="span" fw={500}>Anzahl Items: </Text>
+                        {report.items.length}
+                      </Text>
+
+                      <Group justify="flex-end" gap="xs" mt="sm">
+                        <Button
+                          variant="light"
+                          size="xs"
+                          component={Link}
+                          to={`/view/${report.id}`}
+                          leftSection={<IconEye size={14} />}
+                        >
+                          Ansehen
+                        </Button>
+                        <Button
+                          variant="light"
+                          color="orange"
+                          size="xs"
+                          component={Link}
+                          to={`/edit/${report.id}`}
+                          leftSection={<IconEdit size={14} />}
+                        >
+                          Bearbeiten
+                        </Button>
+                        <Button
+                          variant="light"
+                          color="red"
+                          size="xs"
+                          onClick={() => handleDelete(report.id)}
+                          leftSection={<IconTrash size={14} />}
+                        >
+                          Löschen
+                        </Button>
+                      </Group>
+                    </Stack>
+                  </Card>
+                ))}
+              </SimpleGrid>
+            )}
+          </>
         )}
 
         {filteredReports.length > 0 && (
