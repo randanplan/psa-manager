@@ -104,7 +104,9 @@ export const useAuthStore = create<AuthState>()(
 
           const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (_event, session) => {
-              console.log('Auth state changed:', session);
+              if (process.env.NODE_ENV !== 'production') {
+                console.log('Auth state changed:', session);
+              }
               set({ user: session?.user ?? null });
             }
           );
