@@ -61,26 +61,29 @@ Siehe `docs/index.md` für einen Überblick und `docs/setup-local.md` für das l
        with check (bucket_id = 'psa_files');
      ```
 
-2. **Umgebungsvariablen konfigurieren**:
-
-   - Für lokale Tests mit Cloud-Konfiguration: Die `.env.local` Datei enthält bereits die Cloud-Konfiguration:
+2. **Umgebungsvariablen konfigurieren**:   - Für lokale Tests mit Cloud-Konfiguration erstelle eine `.env.local` Datei mit folgender Struktur:
 
      ```env
-     # Cloud Supabase Konfiguration
-     VITE_SUPABASE_URL=https://lcgeanbehjlwnpfqbful.supabase.co
-     VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxjZ2VhbmJlaGpsd25wZnFiZnVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2NzgwMDMsImV4cCI6MjA3NDI1NDAwM30.KzB-0yxtuueBcFNOKE4WPRm1rNhlIyZivzwQbBr9SLM
-
-     # Zusätzliche Vercel-Variablen (automatisch gesetzt)
-     SUPABASE_URL=https://lcgeanbehjlwnpfqbful.supabase.co
-     SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxjZ2VhbmJlaGpsd25wZnFiZnVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2NzgwMDMsImV4cCI6MjA3NDI1NDAwM30.KzB-0yxtuueBcFNOKE4WPRm1rNhlIyZivzwQbBr9SLM
-     SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxjZ2VhbmJlaGpsd25wZnFiZnVsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODY3ODAwMywiZXhwIjoyMDc0MjU0MDAzfQ.2s4Tzrbe6Bk3tx5y2QdfKX7Ign8Qb37fYmNplwqC1K8
-
+     # Cloud Supabase Konfiguration (ersetze mit deinen echten Werten)
+     VITE_SUPABASE_URL=https://dein-projekt-id.supabase.co
+     VITE_SUPABASE_ANON_KEY=dein-anon-key-hier
+     
+     # Zusätzliche Vercel-Variablen (automatisch gesetzt bei Deployment)
+     SUPABASE_URL=https://dein-projekt-id.supabase.co
+     SUPABASE_ANON_KEY=dein-anon-key-hier
+     SUPABASE_SERVICE_ROLE_KEY=dein-service-role-key-hier
+     
      # PostgreSQL-Verbindungen (für erweiterte Nutzung)
-     POSTGRES_URL=postgres://postgres.lcgeanbehjlwnpfqbful:x1kP0sBn6hZE9WWo@aws-1-eu-central-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
+     POSTGRES_URL=postgres://postgres.projekt-id:passwort@host:5432/postgres?sslmode=require
      POSTGRES_DATABASE=postgres
-     POSTGRES_HOST=db.lcgeanbehjlwnpfqbful.supabase.co
+     POSTGRES_HOST=db.projekt-id.supabase.co
      POSTGRES_USER=postgres
      ```
+
+   - **Echte Werte abrufen**: Hole deine echten Schlüssel aus dem Supabase-Dashboard:
+     - Gehe zu Settings > API
+     - Kopiere `Project URL` und `anon public` Key
+     - **Wichtig**: Service Role Key nur für serverseitige Operationen verwenden!
 
    - **Vercel Deployment**: Diese Variablen werden automatisch von Vercel gesetzt. Wichtige Variablen für die App:
 
