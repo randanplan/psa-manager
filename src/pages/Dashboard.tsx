@@ -8,31 +8,30 @@ import {
   TextInput,
   Paper,
   Table,
-  Badge,
   ActionIcon,
   Stack,
   Text,
   Loader,
   Alert,
   Select,
+  Card,
 } from '@mantine/core';
 import { IconPlus, IconEye, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
 import { useReportStore } from '../store';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
-import type { PsaReportItem } from '../types';
 
 export function Dashboard() {
-  const { 
-    reports, 
-    loading, 
-    error, 
-    fetchReports, 
-    deleteReport, 
-    searchReports, 
-    filterReportsByYear 
+  const {
+    reports,
+    loading,
+    error,
+    fetchReports,
+    deleteReport,
+    searchReports,
+    filterReportsByYear
   } = useReportStore();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [yearFilter, setYearFilter] = useState<string>('');
   const [filteredReports, setFilteredReports] = useState(reports);
@@ -43,22 +42,22 @@ export function Dashboard() {
 
   useEffect(() => {
     let filtered = reports;
-    
+
     if (searchQuery) {
       filtered = searchReports(searchQuery);
     }
-    
+
     if (yearFilter) {
       filtered = filterReportsByYear(parseInt(yearFilter));
     }
-    
+
     if (searchQuery && yearFilter) {
       filtered = searchReports(searchQuery).filter(report => {
         const reportDate = new Date(report.datum);
         return reportDate.getFullYear() === parseInt(yearFilter);
       });
     }
-    
+
     setFilteredReports(filtered);
   }, [reports, searchQuery, yearFilter, searchReports, filterReportsByYear]);
 
@@ -81,24 +80,6 @@ export function Dashboard() {
     }
   };
 
-  const getErgebnisColor = (ergebnis: string) => {
-    switch (ergebnis) {
-      case 'GUT': return 'green';
-      case 'BEOBACHTEN': return 'yellow';
-      case 'REPARIEREN': return 'orange';
-      case 'AUSSONDERN': return 'red';
-      default: return 'gray';
-    }
-  };
-
-  const getWorstErgebnis = (items: PsaReportItem[]): string => {
-    const priorities = { 'AUSSONDERN': 4, 'REPARIEREN': 3, 'BEOBACHTEN': 2, 'GUT': 1 };
-    return items.reduce((worst, item) => {
-      const currentPriority = priorities[item.ergebnis];
-      const worstPriority = priorities[worst as keyof typeof priorities];
-      return currentPriority > worstPriority ? item.ergebnis : worst;
-    }, 'GUT');
-  };
 
   // Generate year options for filter
   const currentYear = new Date().getFullYear();
@@ -119,8 +100,8 @@ export function Dashboard() {
   }
 
   return (
-    <Container size="xl">
-      <Stack gap="lg">
+    <Container size="md">
+      <Stack gap="lg" py="xl">
         <Group justify="space-between" align="center">
           <Title order={1}>PSA-Berichte Dashboard</Title>
           <Button
@@ -133,7 +114,7 @@ export function Dashboard() {
           </Button>
         </Group>
 
-        <Paper p="md" withBorder>
+        <Card withBorder>
           <Group grow>
             <TextInput
               placeholder="Suchen nach Anwender, Prüfer oder Ort..."
@@ -149,7 +130,7 @@ export function Dashboard() {
               clearable
             />
           </Group>
-        </Paper>
+        </Card>
 
         {error && (
           <Alert variant="light" color="red" title="Fehler">
@@ -158,9 +139,9 @@ export function Dashboard() {
         )}
 
         {filteredReports.length === 0 ? (
-          <Paper p="xl" ta="center">
+          <Paper ta="center">
             <Text size="lg" c="dimmed">
-              {reports.length === 0 
+              {reports.length === 0
                 ? 'Noch keine Berichte vorhanden. Erstellen Sie Ihren ersten Bericht!'
                 : 'Keine Berichte entsprechen den Suchkriterien.'
               }
@@ -177,7 +158,7 @@ export function Dashboard() {
             )}
           </Paper>
         ) : (
-          <Paper withBorder>
+          <Paper withBorder shadow='sm' radius="md">
             <Table.ScrollContainer minWidth={800}>
               <Table striped highlightOnHover>
                 <Table.Thead>
@@ -187,7 +168,6 @@ export function Dashboard() {
                     <Table.Th>Ort</Table.Th>
                     <Table.Th>Datum</Table.Th>
                     <Table.Th>Anzahl Items</Table.Th>
-                    <Table.Th>Status</Table.Th>
                     <Table.Th>Aktionen</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -203,11 +183,6 @@ export function Dashboard() {
                         {dayjs(report.datum).format('DD.MM.YYYY')}
                       </Table.Td>
                       <Table.Td>{report.items.length}</Table.Td>
-                      <Table.Td>
-                        <Badge color={getErgebnisColor(getWorstErgebnis(report.items))}>
-                          {getWorstErgebnis(report.items)}
-                        </Badge>
-                      </Table.Td>
                       <Table.Td>
                         <Group gap="xs">
                           <ActionIcon

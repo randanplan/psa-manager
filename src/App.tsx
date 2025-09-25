@@ -1,77 +1,83 @@
-import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { MantineProvider, AppShell, Group, Title, Button, Container } from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
+import React, { useEffect } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
-import '@mantine/notifications/styles.css';
+import '@mantine/nprogress/styles.css';
+import { createTheme, MantineProvider, useMantineTheme } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
+import { useAuthStore } from './store'; // Zustand Store für Auth
+import {Dashboard} from './pages/Dashboard';
+import {NewReport} from './pages/NewReport';
+import {ViewReport} from './pages/ViewReport';
+import {Login} from './pages/Login';
+import './App.css';
 
-import { useAuthStore } from './store';
-import { Dashboard } from './pages/Dashboard';
-import { NewReport } from './pages/NewReport';
-import { EditReport } from './pages/EditReport';
-import { ViewReport } from './pages/ViewReport';
-import { Login } from './pages/Login';
+// Theme-Konfiguration für ein professionelles, dunkles Design
+const theme = createTheme({
+  primaryColor: 'blue',
+  defaultRadius: 'md',
+  colors: {
+    dark: [
+      '#C1C2C5',
+      '#A6A7AB',
+      '#909296',
+      '#5C5F66',
+      '#373A40',
+      '#2C2E33',
+      '#25262B',
+      '#1A1B1E',
+      '#141517',
+      '#101113',
+    ],
+  },
+  fontFamily: 'Arial, sans-serif',
+  headings: { fontFamily: 'Arial, sans-serif' },
+});
 
-function App() {
-  const { user, loading, initialize, signOut } = useAuthStore();
+// Layout-Komponente für Authentifizierung und Navigation
+const RootLayout: React.FC = () => {
+  const { initialize, user } = useAuthStore();
 
   useEffect(() => {
     initialize();
   }, [initialize]);
 
-  if (loading) {
-    return (
-      <MantineProvider defaultColorScheme="dark">
-        <Container size="sm" pt="xl">
-          <Title order={2} ta="center">PSA-Manager wird geladen...</Title>
-        </Container>
-      </MantineProvider>
-    );
-  }
+  return user ? <AuthenticatedApp /> : <Login />;
+};
 
-  if (!user) {
-    return (
-      <MantineProvider defaultColorScheme="dark">
-        <Notifications />
-        <Login />
-      </MantineProvider>
-    );
-  }
+// Authentifizierte App mit Navigation
+const AuthenticatedApp: React.FC = () => {
+  const theme = useMantineTheme();
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <Dashboard />,
+      errorElement: <div>404 - Seite nicht gefunden</div>,
+    },
+    {
+      path: '/report/new',
+      element: <NewReport />,
+    },
+    {
+      path: '/report/:id',
+      element: <ViewReport />,
+    },
+  ]);
 
   return (
-    <MantineProvider defaultColorScheme="dark">
-      <Notifications />
-      <Router>
-        <AppShell
-          header={{ height: 70 }}
-          padding="md"
-        >
-          <AppShell.Header>
-            <Group h="100%" px="md" justify="space-between">
-              <Title order={2} c="blue">PSA-Manager</Title>
-              <Group>
-                <span>Willkommen, {user.email}</span>
-                <Button variant="light" onClick={signOut}>
-                  Abmelden
-                </Button>
-              </Group>
-            </Group>
-          </AppShell.Header>
+    <div style={{ minHeight: '100vh', backgroundColor: theme.colors.dark[7] }}>
+      <RouterProvider router={router} />
+    </div>
+  );
+};
 
-          <AppShell.Main>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/new" element={<NewReport />} />
-              <Route path="/edit/:id" element={<EditReport />} />
-              <Route path="/view/:id" element={<ViewReport />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </AppShell.Main>
-        </AppShell>
-      </Router>
+const App: React.FC = () => {
+  return (
+    <MantineProvider theme={theme} defaultColorScheme="dark" withCssVariables>
+      <Notifications position="top-right" />
+      <RootLayout />
     </MantineProvider>
   );
-}
+};
 
 export default App;

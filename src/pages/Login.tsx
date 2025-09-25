@@ -10,11 +10,10 @@ import {
   Stack,
   Group,
   Alert,
-  Divider,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { useAuthStore, useReportStore } from '../store';
+import { useAuthStore } from '../store';
 
 interface LoginFormValues {
   email: string;
@@ -24,13 +23,12 @@ interface LoginFormValues {
 export function Login() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, signInDemo } = useAuthStore();
-  const { loadSampleData } = useReportStore();
+  const { signIn, signUp } = useAuthStore();
 
   const form = useForm<LoginFormValues>({
     initialValues: {
-      email: '',
-      password: '',
+      email: 'test@example.com',
+      password: 'test123',
     },
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Ungültige E-Mail-Adresse'),
@@ -69,16 +67,6 @@ export function Login() {
     }
   };
 
-  const handleDemoLogin = () => {
-    signInDemo();
-    loadSampleData();
-    notifications.show({
-      title: 'Demo-Modus aktiviert',
-      message: 'Sie verwenden PSA-Manager mit Beispieldaten.',
-      color: 'blue',
-    });
-  };
-
   return (
     <Container size="xs" my={40}>
       <Title order={1} ta="center" mb="xl">
@@ -92,7 +80,7 @@ export function Login() {
 
         <Alert variant="light" color="blue" mb="md">
           <Text size="sm">
-            {isRegistering 
+            {isRegistering
               ? 'Erstellen Sie ein neues Konto für PSA-Manager'
               : 'Melden Sie sich mit Ihrem PSA-Manager Konto an'
             }
@@ -146,20 +134,6 @@ export function Login() {
           </Button>
         </Group>
 
-        <Divider label="oder" labelPosition="center" my="lg" />
-
-        <Button
-          variant="light"
-          fullWidth
-          onClick={handleDemoLogin}
-          color="green"
-        >
-          Demo mit Beispieldaten testen
-        </Button>
-
-        <Text size="xs" c="dimmed" ta="center" mt="md">
-          Im Demo-Modus werden keine echten Daten gespeichert
-        </Text>
       </Paper>
     </Container>
   );

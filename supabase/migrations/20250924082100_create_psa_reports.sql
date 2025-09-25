@@ -1,29 +1,52 @@
--- Create psa_reports table
+-- Migration für psa_reports-Tabelle
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Tabelle erstellen
+DROP TABLE IF EXISTS psa_reports;
 CREATE TABLE psa_reports (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   anwender TEXT NOT NULL,
   prueferName TEXT,
   ort TEXT,
-  datum DATE NOT NULL,
-  items JSONB NOT NULL DEFAULT '[]',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  created_by UUID REFERENCES auth.users(id),
-  updated_by UUID REFERENCES auth.users(id)
+  datum TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  items JSONB NOT NULL DEFAULT '[]'::jsonb,
+  createdAt TIMESTAMPTZ DEFAULT NOW(),
+  updatedAt TIMESTAMPTZ DEFAULT NOW(),
+  createdBy UUID REFERENCES auth.users(id),
+  updatedBy UUID REFERENCES auth.users(id)
 );
 
--- Enable Row Level Security
+-- Trigger für updatedAt
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updatedAt = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_psa_reports_updated_at
+  BEFORE UPDATE ON psa_reports
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- RLS aktivieren
 ALTER TABLE psa_reports ENABLE ROW LEVEL SECURITY;
 
--- Create policies for authenticated users
-CREATE POLICY "Users can view their own reports" ON psa_reports
-  FOR SELECT USING (auth.uid() = created_by);
+-- RLS-Policies
+CREATE POLICY "Users can view own reports" ON psa_reports
+  FOR SELECT TO authenticated
+  USING (auth.uid() = createdBy);
 
-CREATE POLICY "Users can insert their own reports" ON psa_reports
-  FOR INSERT WITH CHECK (auth.uid() = created_by);
+CREATE POLICY "Users can insert own reports" ON psa_reports
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = createdBy);
 
-CREATE POLICY "Users can update their own reports" ON psa_reports
-  FOR UPDATE USING (auth.uid() = created_by);
+CREATE POLICY "Users can update own reports" ON psa_reports
+  FOR UPDATE TO authenticated
+  USING (auth.uid() = createdBy)
+  WITH CHECK (auth.uid() = createdBy);
 
-CREATE POLICY "Users can delete their own reports" ON psa_reports
-  FOR DELETE USING (auth.uid() = created_by);
+CREATE POLICY "Users can delete own reports" ON psa_reports
+  FOR DELETE TO authenticated
+  USING (auth.uid() = createdBy);

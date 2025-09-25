@@ -30,6 +30,8 @@ interface FormValues {
   prueferName: string;
   ort: string;
   datum: Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export function ReportForm({ report, isEditing = false }: ReportFormProps) {
@@ -44,6 +46,8 @@ export function ReportForm({ report, isEditing = false }: ReportFormProps) {
       prueferName: report?.prueferName || '',
       ort: report?.ort || '',
       datum: report?.datum ? new Date(report.datum) : new Date(),
+      createdAt: report?.createdAt ? new Date(report.createdAt) : new Date(),
+      updatedAt: report?.updatedAt ? new Date(report.updatedAt) : new Date(),
     },
     validate: {
       anwender: (value) => (value.trim().length === 0 ? 'Anwender ist erforderlich' : null),
@@ -64,10 +68,12 @@ export function ReportForm({ report, isEditing = false }: ReportFormProps) {
     setLoading(true);
     try {
       const reportData = {
-        anwender: values.anwender.trim(),
-        prueferName: values.prueferName.trim() || undefined,
-        ort: values.ort.trim() || undefined,
+        anwender: values.anwender,
+        prueferName: values.prueferName || undefined,
+        ort: values.ort || undefined,
         datum: values.datum,
+        createdAt: values.createdAt || undefined,
+        updatedAt: values.updatedAt || undefined,
         items: items.map((item, index) => ({ ...item, index })),
       };
 
@@ -88,7 +94,7 @@ export function ReportForm({ report, isEditing = false }: ReportFormProps) {
         navigate(`/view/${reportId}`);
         return;
       }
-      
+
       navigate('/');
     } catch {
       notifications.show({
