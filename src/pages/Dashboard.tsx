@@ -14,6 +14,7 @@ import {
   Loader,
   Alert,
   Select,
+  Card,
 } from '@mantine/core';
 import { IconPlus, IconEye, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
 import { useReportStore } from '../store';
@@ -36,11 +37,6 @@ export function Dashboard() {
   const [filteredReports, setFilteredReports] = useState(reports);
 
   // Responsive breakpoint - show cards on mobile, table on desktop
-  const isMobile = useMatches({
-    base: true,
-    md: false,
-  });
-
   useEffect(() => {
     // Lade Reports beim Mounten und auch bei jeder Navigation zum Dashboard
     fetchReports();
@@ -186,7 +182,6 @@ export function Dashboard() {
                     <Table.Th>Ort</Table.Th>
                     <Table.Th>Datum</Table.Th>
                     <Table.Th>Anzahl Items</Table.Th>
-                    <Table.Th>Status</Table.Th>
                     <Table.Th>Aktionen</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -202,11 +197,6 @@ export function Dashboard() {
                         {dayjs(report.datum).format('DD.MM.YYYY')}
                       </Table.Td>
                       <Table.Td>{report.items.length}</Table.Td>
-                      <Table.Td>
-                        <Badge color={getErgebnisColor(getWorstErgebnis(report.items))}>
-                          {getWorstErgebnis(report.items)}
-                        </Badge>
-                      </Table.Td>
                       <Table.Td>
                         <Group gap="xs">
                           <ActionIcon

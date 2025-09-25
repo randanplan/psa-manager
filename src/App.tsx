@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { MantineProvider, AppShell, Group, Title, Button, Container } from '@mantine/core';
+import { MantineProvider, AppShell, Group, Title, Button, Container, createTheme, Text } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
@@ -13,15 +13,16 @@ import { EditReport } from './pages/EditReport';
 import { ViewReport } from './pages/ViewReport';
 import { Login } from './pages/Login';
 
-function App() {
-  const { user, loading, initialize, signOut } = useAuthStore();
 
-  useEffect(() => {
-    initialize();
-  }, [initialize]);
 
-  return user ? <AuthenticatedApp /> : <Login />;
-};
+import { useMantineTheme } from '@mantine/core';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+const theme = createTheme({
+  primaryColor: 'blue',
+  fontFamily: 'Open Sans, sans-serif',
+  headings: { fontFamily: 'Open Sans, sans-serif' },
+});
 
 // Authentifizierte App mit Navigation
 const AuthenticatedApp: React.FC = () => {
@@ -50,20 +51,30 @@ const AuthenticatedApp: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const { user, signOut } = useAuthStore();
+
+  // Responsive Design: Prüfen, ob das Gerät mobil ist
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
+  if (!user) {
+    return <Login />;
+  }
+
   return (
-    <MantineProvider theme={theme} defaultColorScheme="dark" withCssVariables>
-      <Notifications position="top-right" />
-      <RootLayout />
-    <MantineProvider defaultColorScheme="dark">
-      <Notifications />
-      <Router>
-        <AppShell
-          header={{ height: 70 }}
-          padding="md"
-        >
-          <AppShell.Header>
-            <Group h="100%" px="md" justify="space-between">
-              <Title order={isMobile ? 3 : 2} c="blue">
+    <AppShell
+      header={{ height: 70 }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <Group h="100%" px="md" justify="space-between">
+          <Title order={isMobile ? 3 : 2} c="blue">
                 {isMobile ? 'PSA' : 'PSA-Manager'}
               </Title>
               <Group gap={isMobile ? 'xs' : 'md'}>
@@ -90,9 +101,7 @@ const App: React.FC = () => {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppShell.Main>
-        </AppShell>
-      </Router>
-    </MantineProvider>
+    </AppShell>
   );
 };
 
