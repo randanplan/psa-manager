@@ -150,7 +150,7 @@ export const useReportStore = create<ReportState>()(
 
           set({ loading: true, error: null });
           try {
-            const { data, error, status, statusText, count } = await supabase
+            const { data, error } = await supabase
               .from('psa_reports')
               .insert({
                 anwender: report.anwender,
