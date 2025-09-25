@@ -1,42 +1,20 @@
-import React, { useEffect } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { MantineProvider, AppShell, Group, Title, Button, Container } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
-import '@mantine/nprogress/styles.css';
-import { createTheme, MantineProvider, useMantineTheme } from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
-import { useAuthStore } from './store'; // Zustand Store für Auth
-import {Dashboard} from './pages/Dashboard';
-import {NewReport} from './pages/NewReport';
-import {ViewReport} from './pages/ViewReport';
-import {Login} from './pages/Login';
-import './App.css';
+import '@mantine/notifications/styles.css';
 
-// Theme-Konfiguration für ein professionelles, dunkles Design
-const theme = createTheme({
-  primaryColor: 'blue',
-  defaultRadius: 'md',
-  colors: {
-    dark: [
-      '#C1C2C5',
-      '#A6A7AB',
-      '#909296',
-      '#5C5F66',
-      '#373A40',
-      '#2C2E33',
-      '#25262B',
-      '#1A1B1E',
-      '#141517',
-      '#101113',
-    ],
-  },
-  fontFamily: 'Arial, sans-serif',
-  headings: { fontFamily: 'Arial, sans-serif' },
-});
+import { useAuthStore } from './store';
+import { Dashboard } from './pages/Dashboard';
+import { NewReport } from './pages/NewReport';
+import { EditReport } from './pages/EditReport';
+import { ViewReport } from './pages/ViewReport';
+import { Login } from './pages/Login';
 
-// Layout-Komponente für Authentifizierung und Navigation
-const RootLayout: React.FC = () => {
-  const { initialize, user } = useAuthStore();
+function App() {
+  const { user, loading, initialize, signOut } = useAuthStore();
 
   useEffect(() => {
     initialize();
@@ -76,6 +54,44 @@ const App: React.FC = () => {
     <MantineProvider theme={theme} defaultColorScheme="dark" withCssVariables>
       <Notifications position="top-right" />
       <RootLayout />
+    <MantineProvider defaultColorScheme="dark">
+      <Notifications />
+      <Router>
+        <AppShell
+          header={{ height: 70 }}
+          padding="md"
+        >
+          <AppShell.Header>
+            <Group h="100%" px="md" justify="space-between">
+              <Title order={isMobile ? 3 : 2} c="blue">
+                {isMobile ? 'PSA' : 'PSA-Manager'}
+              </Title>
+              <Group gap={isMobile ? 'xs' : 'md'}>
+                {!isMobile && (
+                  <Text size="sm">Willkommen, {user.email}</Text>
+                )}
+                <Button
+                  variant="light"
+                  onClick={signOut}
+                  size={isMobile ? 'xs' : 'sm'}
+                >
+                  Abmelden
+                </Button>
+              </Group>
+            </Group>
+          </AppShell.Header>
+
+          <AppShell.Main>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/new" element={<NewReport />} />
+              <Route path="/edit/:id" element={<EditReport />} />
+              <Route path="/view/:id" element={<ViewReport />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AppShell.Main>
+        </AppShell>
+      </Router>
     </MantineProvider>
   );
 };

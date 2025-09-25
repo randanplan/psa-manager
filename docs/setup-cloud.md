@@ -61,26 +61,27 @@ Siehe `docs/index.md` für einen Überblick und `docs/setup-local.md` für das l
        with check (bucket_id = 'psa_files');
      ```
 
-2. **Umgebungsvariablen konfigurieren**:   - Für lokale Tests mit Cloud-Konfiguration erstelle eine `.env.local` Datei mit folgender Struktur:
+2. **Umgebungsvariablen konfigurieren**: - Für lokale Tests mit Cloud-Konfiguration erstelle eine `.env.local` Datei mit folgender Struktur:
 
-     ```env
-     # Cloud Supabase Konfiguration (ersetze mit deinen echten Werten)
-     VITE_SUPABASE_URL=https://dein-projekt-id.supabase.co
-     VITE_SUPABASE_ANON_KEY=dein-anon-key-hier
-     
-     # Zusätzliche Vercel-Variablen (automatisch gesetzt bei Deployment)
-     SUPABASE_URL=https://dein-projekt-id.supabase.co
-     SUPABASE_ANON_KEY=dein-anon-key-hier
-     SUPABASE_SERVICE_ROLE_KEY=dein-service-role-key-hier
-     
-     # PostgreSQL-Verbindungen (für erweiterte Nutzung)
-     POSTGRES_URL=postgres://postgres.projekt-id:passwort@host:5432/postgres?sslmode=require
-     POSTGRES_DATABASE=postgres
-     POSTGRES_HOST=db.projekt-id.supabase.co
-     POSTGRES_USER=postgres
-     ```
+   ```env
+   # Cloud Supabase Konfiguration (ersetze mit deinen echten Werten)
+   VITE_SUPABASE_URL=https://dein-projekt-id.supabase.co
+   VITE_SUPABASE_ANON_KEY=dein-anon-key-hier
+
+   # Zusätzliche Vercel-Variablen (automatisch gesetzt bei Deployment)
+   SUPABASE_URL=https://dein-projekt-id.supabase.co
+   SUPABASE_ANON_KEY=dein-anon-key-hier
+   SUPABASE_SERVICE_ROLE_KEY=dein-service-role-key-hier
+
+   # PostgreSQL-Verbindungen (für erweiterte Nutzung)
+   POSTGRES_URL=postgres://postgres.projekt-id:passwort@host:5432/postgres?sslmode=require
+   POSTGRES_DATABASE=postgres
+   POSTGRES_HOST=db.projekt-id.supabase.co
+   POSTGRES_USER=postgres
+   ```
 
    - **Echte Werte abrufen**: Hole deine echten Schlüssel aus dem Supabase-Dashboard:
+
      - Gehe zu Settings > API
      - Kopiere `Project URL` und `anon public` Key
      - **Wichtig**: Service Role Key nur für serverseitige Operationen verwenden!
@@ -175,8 +176,8 @@ Siehe `package.json` für genaue Versionen.
 
 ## Hinweise für Coding-Agents
 
-- **Cloud-URL verwenden**: Nutze `https://lcgeanbehjlwnpfqbful.supabase.co` für Supabase-Operationen in der Cloud-Umgebung.
-- **Authentifizierte Requests**: Beispiel für einen Cloud-Insert mit korrekter URL:
+- **Cloud-URL verwenden**: Nutze deine spezifische Supabase-URL (z.B. `https://dein-projekt-id.supabase.co`) für Supabase-Operationen in der Cloud-Umgebung.
+- **Authentifizierte Requests**: Beispiel für einen Cloud-Insert:
 
   ```typescript
   import { supabase } from "../lib/supabase";
@@ -216,7 +217,7 @@ Siehe `package.json` für genaue Versionen.
 
 - **Supabase-Verbindung fehlschlägt**:
 
-  - Prüfe die URL: `https://lcgeanbehjlwnpfqbful.supabase.co`
+  - Prüfe deine spezifische Projekt-URL aus dem Supabase-Dashboard
   - Überprüfe den Anon Key in der `.env.local` Datei
   - Teste die Verbindung im Supabase-Dashboard unter Settings > API
 
@@ -232,6 +233,12 @@ Siehe `package.json` für genaue Versionen.
   - Stelle sicher, dass die Auth-Konfiguration aktiviert ist
   - Prüfe CORS-Einstellungen in Supabase (Settings > Auth > Site URL)
 
-- **PostgreSQL-Verbindung**: Bei direkten DB-Verbindungen verwende die korrekte Connection-String aus `.env.local`
+- **Secret Scanning Alerts**:
+
+  - Niemals echte API-Schlüssel in der Dokumentation oder im Code committen
+  - Nutze Umgebungsvariablen und `.env.local` für lokale Entwicklung
+  - Bei versehentlicher Veröffentlichung: Schlüssel in Supabase rotieren
+
+- **PostgreSQL-Verbindung**: Bei direkten DB-Verbindungen verwende die korrekte Connection-String aus deiner `.env.local`
 
 - Siehe `docs/troubleshooting.md` für weitere Tipps und lokale Debugging-Methoden.

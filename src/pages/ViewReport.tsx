@@ -13,11 +13,11 @@ import {
   Alert,
   Divider,
 } from '@mantine/core';
-import { 
-  IconArrowLeft, 
-  IconEdit, 
-  IconFileTypePdf, 
-  IconFileTypeXls 
+import {
+  IconArrowLeft,
+  IconEdit,
+  IconFileTypePdf,
+  IconFileTypeXls
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
@@ -38,9 +38,16 @@ export function ViewReport() {
   useEffect(() => {
     const loadReport = async () => {
       try {
-        await fetchReports();
+        // Erst versuchen, den Report aus dem lokalen Store zu holen
         if (id) {
-          const foundReport = getReportById(id);
+          let foundReport = getReportById(id);
+
+          // Wenn nicht gefunden, Reports neu laden
+          if (!foundReport) {
+            await fetchReports();
+            foundReport = getReportById(id);
+          }
+
           setReport(foundReport || null);
         }
       } catch (error) {
@@ -58,18 +65,18 @@ export function ViewReport() {
 
     try {
       const doc = new jsPDF();
-      
+
       // Header
       doc.setFontSize(20);
       doc.text('PSA-Prüfbericht', 20, 30);
-      
+
       // Report info
       doc.setFontSize(12);
       doc.text(`Anwender: ${report.anwender}`, 20, 50);
       doc.text(`Prüfer: ${report.prueferName || 'N/A'}`, 20, 60);
       doc.text(`Ort: ${report.ort || 'N/A'}`, 20, 70);
       doc.text(`Datum: ${dayjs(report.datum).format('DD.MM.YYYY')}`, 20, 80);
-      
+
       // Items table
       const tableData = report.items.map((item, index) => [
         index + 1,
@@ -101,7 +108,7 @@ export function ViewReport() {
       });
 
       doc.save(`PSA-Bericht_${report.anwender}_${dayjs(report.datum).format('YYYY-MM-DD')}.pdf`);
-      
+
       notifications.show({
         title: 'Erfolg',
         message: 'PDF wurde erfolgreich erstellt',
@@ -125,7 +132,7 @@ export function ViewReport() {
 
     try {
       const wb = XLSX.utils.book_new();
-      
+
       // Report info sheet
       const reportInfo = [
         ['PSA-Prüfbericht'],
@@ -151,7 +158,7 @@ export function ViewReport() {
       ];
 
       const ws = XLSX.utils.aoa_to_sheet(reportInfo);
-      
+
       // Set column widths
       const colWidths = [
         { wch: 5 },
@@ -166,9 +173,9 @@ export function ViewReport() {
       ws['!cols'] = colWidths;
 
       XLSX.utils.book_append_sheet(wb, ws, 'PSA-Bericht');
-      
+
       XLSX.writeFile(wb, `PSA-Bericht_${report.anwender}_${dayjs(report.datum).format('YYYY-MM-DD')}.xlsx`);
-      
+
       notifications.show({
         title: 'Erfolg',
         message: 'Excel-Datei wurde erfolgreich erstellt',
@@ -294,10 +301,10 @@ export function ViewReport() {
               </Button>
             </Group>
           </Group>
-          
+
           <ItemTable
             items={report.items}
-            onChange={() => {}} // Not editable in view mode
+            onChange={() => { }} // Not editable in view mode
             editable={false}
           />
         </Paper>

@@ -14,7 +14,6 @@ import {
   Loader,
   Alert,
   Select,
-  Card,
 } from '@mantine/core';
 import { IconPlus, IconEye, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
 import { useReportStore } from '../store';
@@ -36,8 +35,27 @@ export function Dashboard() {
   const [yearFilter, setYearFilter] = useState<string>('');
   const [filteredReports, setFilteredReports] = useState(reports);
 
+  // Responsive breakpoint - show cards on mobile, table on desktop
+  const isMobile = useMatches({
+    base: true,
+    md: false,
+  });
+
   useEffect(() => {
+    // Lade Reports beim Mounten und auch bei jeder Navigation zum Dashboard
     fetchReports();
+  }, [fetchReports]);
+
+  // Zusätzlich: Lade Reports neu, wenn die Komponente fokussiert wird
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchReports();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [fetchReports]);
 
   useEffect(() => {
@@ -158,7 +176,7 @@ export function Dashboard() {
             )}
           </Paper>
         ) : (
-          <Paper withBorder shadow='sm' radius="md">
+          <Paper withBorder>
             <Table.ScrollContainer minWidth={800}>
               <Table striped highlightOnHover>
                 <Table.Thead>
@@ -168,6 +186,7 @@ export function Dashboard() {
                     <Table.Th>Ort</Table.Th>
                     <Table.Th>Datum</Table.Th>
                     <Table.Th>Anzahl Items</Table.Th>
+                    <Table.Th>Status</Table.Th>
                     <Table.Th>Aktionen</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -183,6 +202,11 @@ export function Dashboard() {
                         {dayjs(report.datum).format('DD.MM.YYYY')}
                       </Table.Td>
                       <Table.Td>{report.items.length}</Table.Td>
+                      <Table.Td>
+                        <Badge color={getErgebnisColor(getWorstErgebnis(report.items))}>
+                          {getWorstErgebnis(report.items)}
+                        </Badge>
+                      </Table.Td>
                       <Table.Td>
                         <Group gap="xs">
                           <ActionIcon

@@ -85,13 +85,15 @@ export function ReportForm({ report, isEditing = false }: ReportFormProps) {
           color: 'green',
         });
       } else {
-        const reportId = await createReport(reportData);
+        await createReport(reportData);
         notifications.show({
           title: 'Erfolg',
-          message: 'Bericht wurde erstellt',
+          message: 'Bericht wurde erstellt und wird im Dashboard angezeigt',
           color: 'green',
         });
-        navigate(`/view/${reportId}`);
+
+        // Navigiere zurück zum Dashboard - es wird automatisch neu geladen
+        navigate('/', { replace: true });
         return;
       }
 

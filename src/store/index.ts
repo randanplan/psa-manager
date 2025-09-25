@@ -163,10 +163,10 @@ export const useReportStore = create<ReportState>()(
               .select()
               .single();
 
-            if (error) throw error;
-            if (process.env.NODE_ENV === 'development') {
-              console.log('Create report response:', { data, error, status, statusText, count });
+            if (error) {
+              throw error;
             }
+
             const newReport: PsaReport = {
               id: data.id,
               anwender: data.anwender,
@@ -188,7 +188,7 @@ export const useReportStore = create<ReportState>()(
             return data.id;
           } catch (error) {
             console.error('Error creating report:', error);
-            set({ error: 'Failed to create report', loading: false });
+            set({ error: `Failed to create report: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`, loading: false });
             throw error;
           }
         },
